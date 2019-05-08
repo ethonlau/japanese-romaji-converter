@@ -54,7 +54,7 @@ export default {
         const sentence = this.content.replace(/\n/g, "|")
         const url = `https://jlp.yahooapis.jp/FuriganaService/V1/furigana?appid=dj00aiZpPUM1Y2pQYlpqcERldyZzPWNvbnN1bWVyc2VjcmV0Jng9ZGM-&grade=1&sentence=${sentence}`
         axios
-          .get(url, {headers: {'Access-Control-Allow-Origin': '*'}})
+          .post(url, {headers: {'Access-Control-Allow-Origin': '*'}})
           .then(response => {
             let DOMParser = require('xmldom').DOMParser
             let result = new DOMParser().parseFromString(response.data.replace(/\s/g, ""), 'text/xml');
