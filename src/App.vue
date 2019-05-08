@@ -40,7 +40,7 @@ export default {
     return {
       loading: false,
       errored: false,
-      content: '頬を刺す朝の山手通り\n煙草の空き箱を捨てる\n今日もまた足の踏み場は無い\n小部屋が孤独を甘やかす\n｢不穏な悲鳴を愛さないで\n未来等　見ないで\n確信出来る　現在だけ　重ねて\nあたしの名前をちゃんと呼んで\n身体を触って\n必要なのは　是だけ　認めて」\n愛している－独り泣き喚いて\n夜道を弄れど　虚しい\n改札の安蛍光灯は\n貴方の影すら落とさない\n歪んだ無常の遠き日もセヴンスターの香り\n味わう如く季節を呼び起こす\nあたしが望んだこと自体　矛盾を優に超えて\n一番愛しい貴方の声迄　掠れさせて居たのだろう\n静寂を破るドイツ車とパトカー\nサイレン\n爆音\n現実界\n或る浮遊\n',
+      content: '',
       result: null,
     }
   },
@@ -54,7 +54,7 @@ export default {
         const sentence = this.content.replace(/\n/g, "|")
         const url = `https://jlp.yahooapis.jp/FuriganaService/V1/furigana?appid=dj00aiZpPUM1Y2pQYlpqcERldyZzPWNvbnN1bWVyc2VjcmV0Jng9ZGM-&grade=1&sentence=${sentence}`
         axios
-          .get(url)
+          .get(url, {headers: {'Access-Control-Allow-Origin': '*'}})
           .then(response => {
             let DOMParser = require('xmldom').DOMParser
             let result = new DOMParser().parseFromString(response.data.replace(/\s/g, ""), 'text/xml');
