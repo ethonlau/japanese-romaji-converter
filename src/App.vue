@@ -4,20 +4,20 @@
     <button @click="converte"
             class="btn-convert"
             :class="{ 'no-content': !content, 'cleanup': result }">
-      <template v-if="result">Back</template>
-      <template v-else>Let's go</template>
+      <template v-if="result">返回</template>
+      <template v-else>开始转换</template>
     </button>
     <div v-if="loading" class="loader"></div>
-    <div v-if="errored" class="error">😯Something wrong</div>
+    <div v-if="errored" class="error">😯转换出错，请检查是否含有非和制汉字</div>
     <div v-if="result" class="result">
       <template v-for="(item, index) in result">
         <span v-if="!item.Surface.length" :key="index"></span>
-        <template v-else-if="item.Surface.toString().indexOf('|') === 0">
+        <template v-else-if="item.Surface.toString().indexOf('|') >= 0">
           <br :key="index">
           <ruby v-if="item.Surface.length > 1" class="word" :key="index">
             <rt class="furigana"></rt>
-            {{item.Surface.replace('|','')}}
-            <rt class="roman"></rt>
+            {{item.Surface.replace(/\|/g,'')}}
+            <div class="roman"></div>
           </ruby>
         </template>
         <ruby v-else class="word" :key="index">
@@ -66,7 +66,7 @@ export default {
             this.errored = true
             setTimeout(() => {
               this.errored = false
-            }, 1000)
+            }, 2000)
           })
           .finally(() => this.loading = false)
       }
@@ -197,7 +197,7 @@ body {
       vertical-align: middle;
     }
 
-    rt {
+    rt, .roman {
       min-height: 12px;
       font-size: 12px;
       line-height: 1;
