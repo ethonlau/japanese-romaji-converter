@@ -15,16 +15,16 @@
         <template v-else-if="item.Surface.toString().indexOf('|') >= 0">
           <br :key="index">
           <ruby v-if="item.Surface.length > 1" class="word" :key="index">
-            <rt class="furigana"></rt>
+            <div class="furigana"></div>
             {{item.Surface.replace(/\|/g,'')}}
             <div class="roman"></div>
           </ruby>
         </template>
         <ruby v-else class="word" :key="index">
-          <rt class="furigana">{{item.Furigana}}</rt>
+          <div class="furigana">{{item.Furigana}}</div>
           {{item.Surface}}
-          <rt v-if="item.Roman" class="roman">{{item.Roman}}</rt>
-          <rt v-else class="roman">{{kana(item.Surface)}}</rt>
+          <div v-if="item.Roman" class="roman">{{item.Roman}}</div>
+          <div v-else class="roman">{{kana(item.Surface)}}</div>
         </ruby>
       </template>
     </div>
@@ -197,7 +197,7 @@ body {
       vertical-align: middle;
     }
 
-    rt, .roman {
+    .furigana, .roman {
       min-height: 12px;
       font-size: 12px;
       line-height: 1;
