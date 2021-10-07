@@ -10,23 +10,23 @@
     <div v-if="loading" class="loader"></div>
     <div v-if="errored" class="error">😯转换出错，请检查是否含有非和制汉字</div>
     <div v-if="result" class="result">
-      <template v-for="(item, index) in result">
-        <span v-if="!item.Surface.length" :key="index"></span>
-        <template v-else-if="item.Surface.toString().indexOf('|') >= 0">
-          <br :key="index">
-          <ruby v-if="item.Surface.length > 1" class="word" :key="index">
+      <span v-for="(item, index) in result" :key="index">
+        <span v-if="!item.surface"></span>
+        <template v-else-if="item.surface.toString().indexOf('|') >= 0">
+          <br/>
+          <ruby v-if="item.surface.length > 1" class="word">
             <div class="furigana"></div>
-            {{item.Surface.replace(/\|/g,'')}}
+            {{item.surface.replace(/\|/g,'')}}
             <div class="roman"></div>
           </ruby>
         </template>
-        <ruby v-else class="word" :key="index">
-          <div class="furigana">{{item.Furigana}}</div>
-          {{item.Surface}}
-          <div v-if="item.Roman" class="roman">{{item.Roman}}</div>
-          <div v-else class="roman">{{kana(item.Surface)}}</div>
+        <ruby v-else class="word">
+          <div class="furigana">{{item.furigana}}</div>
+          {{item.surface}}
+          <div v-if="item.roman" class="roman">{{item.roman}}</div>
+          <div v-else class="roman">{{kana(item.surface)}}</div>
         </ruby>
-      </template>
+      </span>
     </div>
   </div>
 </template>
@@ -52,15 +52,20 @@ export default {
         this.errored = false
         this.loading = true
         const sentence = this.content.replace(/\n/g, "|")
-        const proxyurl = "https://cors-anywhere.herokuapp.com/"
-        const url = `https://jlp.yahooapis.jp/FuriganaService/V1/furigana?appid=dj00aiZpPUM1Y2pQYlpqcERldyZzPWNvbnN1bWVyc2VjcmV0Jng9ZGM-&grade=1&sentence=${sentence}`
+        const proxyurl = "https://radiant-reaches-78940.herokuapp.com/"
+        const url = `https://jlp.yahooapis.jp/FuriganaService/V2/furigana?appid=dj00aiZpPUM1Y2pQYlpqcERldyZzPWNvbnN1bWVyc2VjcmV0Jng9ZGM-`
         axios
-          .get(proxyurl+url)
+          .post(proxyurl+url,{
+            "id": "1234-1",
+            "jsonrpc": "2.0",
+            "method": "jlp.furiganaservice.furigana",
+            "params": {
+              "q": sentence,
+              "grade": 1
+            }
+          })
           .then(response => {
-            let DOMParser = require('xmldom').DOMParser
-            let result = new DOMParser().parseFromString(response.data.replace(/\s/g, ""), 'text/xml');
-            let resJson = this.xmlToJson(result)
-            this.result = resJson.Result.WordList.Word
+            this.result = response.data.result.word
           })
           .catch(() => {
             this.errored = true
@@ -70,39 +75,6 @@ export default {
           })
           .finally(() => this.loading = false)
       }
-    },
-    xmlToJson (xml) {
-      let obj = {};
-      if (xml.nodeType === 1) {
-        if (xml.attributes.length > 0) {
-          obj['@attributes'] = {};
-          for (let j = 0; j < xml.attributes.length; j += 1) {
-            const attribute = xml.attributes.item(j);
-            obj['@attributes'][attribute.nodeName] = attribute.nodeValue;
-          }
-        }
-      } else if (xml.nodeType === 3) {
-        obj = xml.nodeValue;
-      }
-      if (xml.hasChildNodes() && xml.childNodes.length === 1 && xml.childNodes[0].nodeType === 3) {
-        obj = xml.childNodes[0].nodeValue;
-      } else if (xml.hasChildNodes()) {
-        for (let i = 0; i < xml.childNodes.length; i += 1) {
-          const item = xml.childNodes.item(i);
-          const nodeName = item.nodeName;
-          if (typeof (obj[nodeName]) === 'undefined') {
-            obj[nodeName] = this.xmlToJson(item);
-          } else {
-            if (typeof (obj[nodeName].push) === 'undefined') {
-              const old = obj[nodeName];
-              obj[nodeName] = [];
-              obj[nodeName].push(old);
-            }
-            obj[nodeName].push(this.xmlToJson(item));
-          }
-        }
-      }
-      return obj;
     },
     kana (text) {
       const u = text.match(/[\u3040-\u3f9f]+/g)
